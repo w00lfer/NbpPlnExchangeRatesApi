@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRatesApi", "NbpPlnExchangeRatesApi\NbpPlnExchangeRatesApi.csproj", "{E2FB72A9-A8D2-485C-92CB-ED0D7452DFC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.API", "NbpPlnExchangeRates.API\NbpPlnExchangeRates.API.csproj", "{E2FB72A9-A8D2-485C-92CB-ED0D7452DFC6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A6AE4AC3-FD13-482C-945F-C54CE33074E9}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Domain", "NbpPlnExchangeRates.Domain\NbpPlnExchangeRates.Domain.csproj", "{C1755D6E-EED8-424B-987B-B4A8F81B9181}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Infrastructure", "NbpPlnExchangeRates.Infrastructure\NbpPlnExchangeRates.Infrastructure.csproj", "{0F4C9906-D39E-460A-9722-430271039DA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Application", "NbpPlnExchangeRates.Application\NbpPlnExchangeRates.Application.csproj", "{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,5 +23,17 @@ Global
 		{E2FB72A9-A8D2-485C-92CB-ED0D7452DFC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2FB72A9-A8D2-485C-92CB-ED0D7452DFC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2FB72A9-A8D2-485C-92CB-ED0D7452DFC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1755D6E-EED8-424B-987B-B4A8F81B9181}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1755D6E-EED8-424B-987B-B4A8F81B9181}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1755D6E-EED8-424B-987B-B4A8F81B9181}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1755D6E-EED8-424B-987B-B4A8F81B9181}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F4C9906-D39E-460A-9722-430271039DA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F4C9906-D39E-460A-9722-430271039DA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F4C9906-D39E-460A-9722-430271039DA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F4C9906-D39E-460A-9722-430271039DA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
