@@ -23,4 +23,10 @@
       <Folder Include="Controllers\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\NbpPlnExchangeRates.Application\NbpPlnExchangeRates.Application.csproj" />
+      <ProjectReference Include="..\NbpPlnExchangeRates.Domain\NbpPlnExchangeRates.Domain.csproj" />
+      <ProjectReference Include="..\NbpPlnExchangeRates.Infrastructure\NbpPlnExchangeRates.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>
