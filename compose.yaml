@@ -1,0 +1,18 @@
+﻿services:
+  nbpplnexchangeratesapi:
+    image: nbpplnexchangeratesapi
+    build:
+      context: .
+      dockerfile: NbpPlnExchangeRatesApi/Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      - mssql
+      
+  mssql:
+    image: mcr.microsoft.com/mssql/server
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "<)M=!#yuYC.{30v£07`N$"
