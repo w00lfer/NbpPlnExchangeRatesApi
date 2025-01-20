@@ -44,6 +44,11 @@ public class Result
     
     public Error[] Errors { get; }
     
+    public string AggregatedErrorMessages => 
+        IsFailure
+            ? string.Join(Environment.NewLine, Errors.Select(e => e.ErrorMessage))
+            : throw new InvalidOperationException("Can only get aggregated error messages when result is Error.");
+    
     public static implicit operator Result(Error error) => 
         Failure(error);
     

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using NbpPlnExchangeRates.Domain.ExchangeRates;
+using NbpPlnExchangeRates.Domain.IsoCodes;
 
 namespace NbpPlnExchangeRates.Infrastructure.ApplicationDbContexts;
 
@@ -13,4 +15,8 @@ public class ApplicationDbContext : DbContext
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
+    
+    //public DbSet<ExchangeRate> ExchangeRates { get; set; }
+    
+    public DbSet<CurrencyCode> CurrencyCodes { get; set; }
 }

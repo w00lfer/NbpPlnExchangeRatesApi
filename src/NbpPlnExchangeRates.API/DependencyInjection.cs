@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
+using NbpPlnExchangeRates.Api.Infrastructure;
 using NbpPlnExchangeRates.Infrastructure.Options;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
@@ -23,6 +24,8 @@ public static class DependencyInjection
         services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
         
         AddOptions(builder);
+        
+        services.ConfigureNbpApiClient();
         
         services.AddOpenApi("v1");
     }
