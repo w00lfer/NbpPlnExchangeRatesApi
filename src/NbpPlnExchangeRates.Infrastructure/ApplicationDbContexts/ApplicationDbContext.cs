@@ -16,7 +16,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
     
-    //public DbSet<ExchangeRate> ExchangeRates { get; set; }
+    public DbSet<ExchangeRate> ExchangeRates { get; set; }
     
     public DbSet<CurrencyCode> CurrencyCodes { get; set; }
 }
