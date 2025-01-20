@@ -1,17 +1,29 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.API", "NbpPlnExchangeRates.API\NbpPlnExchangeRates.API.csproj", "{E2FB72A9-A8D2-485C-92CB-ED0D7452DFC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.API", "src\NbpPlnExchangeRates.API\NbpPlnExchangeRates.API.csproj", "{E2FB72A9-A8D2-485C-92CB-ED0D7452DFC6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A6AE4AC3-FD13-482C-945F-C54CE33074E9}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Domain", "NbpPlnExchangeRates.Domain\NbpPlnExchangeRates.Domain.csproj", "{C1755D6E-EED8-424B-987B-B4A8F81B9181}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Domain", "src\NbpPlnExchangeRates.Domain\NbpPlnExchangeRates.Domain.csproj", "{C1755D6E-EED8-424B-987B-B4A8F81B9181}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Infrastructure", "NbpPlnExchangeRates.Infrastructure\NbpPlnExchangeRates.Infrastructure.csproj", "{0F4C9906-D39E-460A-9722-430271039DA9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Infrastructure", "src\NbpPlnExchangeRates.Infrastructure\NbpPlnExchangeRates.Infrastructure.csproj", "{0F4C9906-D39E-460A-9722-430271039DA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Application", "NbpPlnExchangeRates.Application\NbpPlnExchangeRates.Application.csproj", "{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Application", "src\NbpPlnExchangeRates.Application\NbpPlnExchangeRates.Application.csproj", "{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{32D96B8E-DE9D-4724-BDC5-989864BE0BCF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F8EC9B29-C406-4C44-85C4-C4B936325B18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.API.Tests", "test\NbpPlnExchangeRates.API.Tests\NbpPlnExchangeRates.API.Tests.csproj", "{88D5BAB5-41C0-475F-A14B-1EA83EC81C84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Domain.Tests", "test\NbpPlnExchangeRates.Domain.Tests\NbpPlnExchangeRates.Domain.Tests.csproj", "{F1D9783E-181E-457C-ACAC-63D31F328815}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Application.Tests", "test\NbpPlnExchangeRates.Application.Tests\NbpPlnExchangeRates.Application.Tests.csproj", "{8DD183A6-6306-4554-B7B5-3EEFEC4BD50F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NbpPlnExchangeRates.Infrastructure.Tests", "test\NbpPlnExchangeRates.Infrastructure.Tests\NbpPlnExchangeRates.Infrastructure.Tests.csproj", "{60FFCF5D-ED27-48AE-9DEA-0BC8D5B3113D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,5 +47,31 @@ Global
 		{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F8F0D6E-579C-4E16-8D64-EB667F7DB335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88D5BAB5-41C0-475F-A14B-1EA83EC81C84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88D5BAB5-41C0-475F-A14B-1EA83EC81C84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88D5BAB5-41C0-475F-A14B-1EA83EC81C84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88D5BAB5-41C0-475F-A14B-1EA83EC81C84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1D9783E-181E-457C-ACAC-63D31F328815}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1D9783E-181E-457C-ACAC-63D31F328815}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1D9783E-181E-457C-ACAC-63D31F328815}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1D9783E-181E-457C-ACAC-63D31F328815}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DD183A6-6306-4554-B7B5-3EEFEC4BD50F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DD183A6-6306-4554-B7B5-3EEFEC4BD50F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DD183A6-6306-4554-B7B5-3EEFEC4BD50F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DD183A6-6306-4554-B7B5-3EEFEC4BD50F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60FFCF5D-ED27-48AE-9DEA-0BC8D5B3113D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60FFCF5D-ED27-48AE-9DEA-0BC8D5B3113D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60FFCF5D-ED27-48AE-9DEA-0BC8D5B3113D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60FFCF5D-ED27-48AE-9DEA-0BC8D5B3113D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0F4C9906-D39E-460A-9722-430271039DA9} = {32D96B8E-DE9D-4724-BDC5-989864BE0BCF}
+		{C1755D6E-EED8-424B-987B-B4A8F81B9181} = {32D96B8E-DE9D-4724-BDC5-989864BE0BCF}
+		{E2FB72A9-A8D2-485C-92CB-ED0D7452DFC6} = {32D96B8E-DE9D-4724-BDC5-989864BE0BCF}
+		{7F8F0D6E-579C-4E16-8D64-EB667F7DB335} = {32D96B8E-DE9D-4724-BDC5-989864BE0BCF}
+		{88D5BAB5-41C0-475F-A14B-1EA83EC81C84} = {F8EC9B29-C406-4C44-85C4-C4B936325B18}
+		{F1D9783E-181E-457C-ACAC-63D31F328815} = {F8EC9B29-C406-4C44-85C4-C4B936325B18}
+		{8DD183A6-6306-4554-B7B5-3EEFEC4BD50F} = {F8EC9B29-C406-4C44-85C4-C4B936325B18}
+		{60FFCF5D-ED27-48AE-9DEA-0BC8D5B3113D} = {F8EC9B29-C406-4C44-85C4-C4B936325B18}
 	EndGlobalSection
 EndGlobal

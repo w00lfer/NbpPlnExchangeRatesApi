@@ -3,7 +3,7 @@
     image: nbpplnexchangeratesapi
     build:
       context: .
-      dockerfile: NbpPlnExchangeRatesApi/Dockerfile
+      dockerfile: src/NbpPlnExchangeRates.Api/Dockerfile
     ports:
       - "5000:8080"
     depends_on:

@@ -3,7 +3,7 @@ using NbpPlnExchangeRates.Domain;
 using NbpPlnExchangeRates.Infrastructure;
 using Scalar.AspNetCore;
 
-namespace NbpPlnExchangeRatesApi;
+namespace NbpPlnExchangeRates.Api;
 
 public class Program
 {
@@ -12,14 +12,10 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-        builder.Services.AddApiDI();
+        builder.Services.AddApiDI(builder);
         builder.Services.AddApplicationDI();
         builder.Services.AddInfrastructureDI();
         builder.Services.AddDomainDI();
-        
-        builder.Services.AddControllers();
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-        builder.Services.AddOpenApi("v1");
 
         var app = builder.Build();
 
