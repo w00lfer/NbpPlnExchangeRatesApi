@@ -34,7 +34,7 @@ public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery,
         var currencyCode = await _currencyCodeRepository.GetByCodeAsync(request.CurrencyCode, cancellationToken);
         if (currencyCode is null)
         {
-            return Result.Failure<ExchangeRateDto>(new EntityNotFoundError($"Currency code is invalid for CurrencyCode={currencyCode}."));
+            return Result.Failure<ExchangeRateDto>(new EntityNotFoundError($"Currency code is invalid for CurrencyCode={request.CurrencyCode}."));
         }
         
         LocalDate sanitisedEffectiveDate = DoesDateFallsOnAWeekend(request.EffectiveDate) 

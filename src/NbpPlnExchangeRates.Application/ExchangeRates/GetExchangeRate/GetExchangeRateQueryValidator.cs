@@ -14,6 +14,7 @@ public class GetExchangeRateQueryValidator : AbstractValidator<GetExchangeRateQu
 
         RuleFor(x => x.EffectiveDate)
             .NotEmpty()
-            .Must(x => x <= clock.InTzdbSystemDefaultZone().GetCurrentDate());
+            .Must(x => x <= clock.InTzdbSystemDefaultZone().GetCurrentDate())
+            .WithMessage("Effective date must be in the past or today");
     }
 }

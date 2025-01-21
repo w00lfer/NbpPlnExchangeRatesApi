@@ -21,4 +21,9 @@
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\NbpPlnExchangeRates.Application\NbpPlnExchangeRates.Application.csproj" />
+      <ProjectReference Include="..\..\src\NbpPlnExchangeRates.Domain\NbpPlnExchangeRates.Domain.csproj" />
+    </ItemGroup>
+
 </Project>
