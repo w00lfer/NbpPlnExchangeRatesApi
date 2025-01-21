@@ -1,6 +1,6 @@
 using NbpPlnExchangeRates.Domain.Common;
 using NbpPlnExchangeRates.Domain.Common.Errors;
-using NbpPlnExchangeRates.Domain.IsoCodes;
+using NbpPlnExchangeRates.Domain.CurrencyCodes;
 using NodaTime;
 
 namespace NbpPlnExchangeRates.Domain.ExchangeRates;

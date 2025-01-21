@@ -2,7 +2,7 @@ using NodaTime;
 
 namespace NbpPlnExchangeRates.Application.ApiClients;
 
-public record NbpApiClientCurrencyRateDto(
+public record NbpApiClientExchangeCurrencyRateDto(
     string Code,
     LocalDate EffectiveDate,
     decimal Bid,

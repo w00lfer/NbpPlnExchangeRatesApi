@@ -3,8 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NbpPlnExchangeRates.Domain.Common;
+using NbpPlnExchangeRates.Domain.CurrencyCodes;
+using NbpPlnExchangeRates.Domain.ExchangeRates;
 using NbpPlnExchangeRates.Infrastructure.ApplicationDbContexts;
 using NbpPlnExchangeRates.Infrastructure.Common;
+using NbpPlnExchangeRates.Infrastructure.CurrencyCodes;
+using NbpPlnExchangeRates.Infrastructure.ExchangeRates;
 using NbpPlnExchangeRates.Infrastructure.Options;
 using NbpPlnExchangeRates.Infrastructure.Seeds;
 
@@ -17,6 +21,9 @@ public static class DependencyInjection
         services.AddHostedService<AppInitializer>();
         
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
+        services.AddScoped<ICurrencyCodeRepository, CurrencyCodeRepository>();
+        services.AddScoped<IExchangeRateRepository, ExchangeRateRepository>();
         
         AddDb(services);
         

@@ -1,30 +1,41 @@
 using System.Net;
+using System.Text.Json;
 using NbpPlnExchangeRates.Api.Common.Errors;
 using NbpPlnExchangeRates.Application.ApiClients;
 using NbpPlnExchangeRates.Domain.Common;
 using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
+using NodaTime.Text;
 
 namespace NbpPlnExchangeRates.Api.Infrastructure;
 
 public class NbpApiClient : INbpApiClient
 {
     private readonly HttpClient _httpClient;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly LocalDatePattern _localDatePattern;
 
     public NbpApiClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
+
+        var jsonSerializerOptions = new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+        jsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        _jsonSerializerOptions = jsonSerializerOptions;
+        
+        _localDatePattern = LocalDatePattern.CreateWithInvariantCulture("yyyy-MM-dd");
     }
     
-    public async Task<Result<NbpApiClientCurrencyRateDto>> GetCurrencyRates(string currencyCode, LocalDate effectiveDate)
+    public async Task<Result<NbpApiClientExchangeCurrencyRateDto>> GetCurrencyExchangeRate(string currencyCode, LocalDate effectiveDate, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"rates/C/{currencyCode}/{effectiveDate}");
+        var response = await _httpClient.GetAsync($"rates/C/{currencyCode}/{_localDatePattern.Format(effectiveDate)}", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
             return HandleNonSuccessStatusCode(response, currencyCode, effectiveDate);
         }
 
-        CurrencyRateApiResponse? currencyRateApiResponse = await response.Content.ReadFromJsonAsync<CurrencyRateApiResponse>();
+        CurrencyRateApiResponse? currencyRateApiResponse = await response.Content.ReadFromJsonAsync<CurrencyRateApiResponse>(_jsonSerializerOptions, cancellationToken); 
 
         if (currencyRateApiResponse is null)
         {
@@ -36,16 +47,16 @@ public class NbpApiClient : INbpApiClient
             return new ApiError("Invalid number of rates in NBP payload.");
         }
         
-        NbpApiClientCurrencyRateDto nbpApiClientCurrencyRateDto = new(
+        NbpApiClientExchangeCurrencyRateDto nbpApiClientExchangeCurrencyRateDto = new(
                 currencyRateApiResponse.Code,
                 currencyRateApiResponse.Rates.Single().EffectiveDate,
                 currencyRateApiResponse.Rates.Single().Bid,
                 currencyRateApiResponse.Rates.Single().Ask);
         
-        return Result.Success(nbpApiClientCurrencyRateDto);
+        return Result.Success(nbpApiClientExchangeCurrencyRateDto);
     }
 
-    private Result<NbpApiClientCurrencyRateDto> HandleNonSuccessStatusCode(HttpResponseMessage response, string currencyCode, LocalDate effectiveDate)
+    private Result<NbpApiClientExchangeCurrencyRateDto> HandleNonSuccessStatusCode(HttpResponseMessage response, string currencyCode, LocalDate effectiveDate)
     {
         return response.StatusCode switch
         {

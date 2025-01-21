@@ -5,5 +5,5 @@ namespace NbpPlnExchangeRates.Application.ApiClients;
 
 public interface INbpApiClient
 {
-    Task<Result<NbpApiClientCurrencyRateDto>> GetCurrencyRates(string currencyCode, LocalDate effectiveDate);
+    Task<Result<NbpApiClientExchangeCurrencyRateDto>> GetCurrencyExchangeRate(string currencyCode, LocalDate effectiveDate, CancellationToken cancellationToken = default);
 }

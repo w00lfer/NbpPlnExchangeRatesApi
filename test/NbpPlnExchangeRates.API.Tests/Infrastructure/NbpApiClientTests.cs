@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Moq;
 using Moq.Contrib.HttpClient;
@@ -13,7 +14,7 @@ namespace NbpPlnExchangeRates.API.Tests.Infrastructure;
 [TestFixture]
 public class NbpApiClientTests
 {
-    private const string HttpClientBaseAddress = "https://api.nbp.pl/api/exchangerates";
+    private const string HttpClientBaseAddress = "https://api.nbp.pl/api/exchangerates/";
     private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new();
 
     private NbpApiClient _nbpApiClient;
@@ -28,77 +29,77 @@ public class NbpApiClientTests
     }
     
     [Test]
-    public async Task GetCurrencyRates_WhenResponseIsBadRequest_ReturnsApiError()
+    public async Task GetCurrencyExchangeRate_ResponseIsBadRequest_ReturnsApiError()
     {
         const string currencyCode = "USD";
         LocalDate effectiveDate = new(2024, 1, 21);
         
         _httpMessageHandlerMock
-            .SetupRequest(HttpClientBaseAddress + GetRatesEndpointUrl(currencyCode, effectiveDate))
+            .SetupRequest(HttpMethod.Get, string.Concat(HttpClientBaseAddress, GetRatesEndpointUrl(currencyCode, effectiveDate)))
             .ReturnsResponse(HttpStatusCode.BadRequest);
         
-        Result<NbpApiClientCurrencyRateDto> result = await _nbpApiClient.GetCurrencyRates(currencyCode, effectiveDate);
+        Result<NbpApiClientExchangeCurrencyRateDto> result = await _nbpApiClient.GetCurrencyExchangeRate(currencyCode, effectiveDate);
         
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo($"Invalid request for CurrencyCode={currencyCode}, EffectiveDate={effectiveDate}."));
     }
 
     [Test]
-    public async Task GetCurrencyRates_WhenResponseIsNotFound_ReturnsApiError()
+    public async Task GetCurrencyExchangeRate_ResponseIsNotFound_ReturnsApiError()
     {
         const string currencyCode = "USD";
         LocalDate effectiveDate = new(2024, 1, 21);
 
         _httpMessageHandlerMock
-            .SetupRequest(HttpClientBaseAddress + GetRatesEndpointUrl(currencyCode, effectiveDate))
+            .SetupRequest(HttpMethod.Get, string.Concat(HttpClientBaseAddress, GetRatesEndpointUrl(currencyCode, effectiveDate)))
             .ReturnsResponse(HttpStatusCode.NotFound);
 
-        Result<NbpApiClientCurrencyRateDto> result = await _nbpApiClient.GetCurrencyRates(currencyCode, effectiveDate);
+        Result<NbpApiClientExchangeCurrencyRateDto> result = await _nbpApiClient.GetCurrencyExchangeRate(currencyCode, effectiveDate);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo($"Currency not found for CurrencyCode={currencyCode}, EffectiveDate={effectiveDate}."));
     }
 
     [Test]
-    public async Task GetCurrencyRates_WhenResponseIsOtherError_ReturnsApiError()
+    public async Task GetCurrencyExchangeRate_ResponseIsOtherError_ReturnsApiError()
     {
         const string currencyCode = "USD";
         LocalDate effectiveDate = new(2024, 1, 21);
 
         _httpMessageHandlerMock
-            .SetupRequest(HttpClientBaseAddress + GetRatesEndpointUrl(currencyCode, effectiveDate))
+            .SetupRequest(HttpMethod.Get, string.Concat(HttpClientBaseAddress, GetRatesEndpointUrl(currencyCode, effectiveDate)))
             .ReturnsResponse(HttpStatusCode.InternalServerError);
 
-        Result<NbpApiClientCurrencyRateDto> result = await _nbpApiClient.GetCurrencyRates(currencyCode, effectiveDate);
+        Result<NbpApiClientExchangeCurrencyRateDto> result = await _nbpApiClient.GetCurrencyExchangeRate(currencyCode, effectiveDate);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo("An error occurred while processing the request to NBP."));
     }
 
     [Test]
-    public async Task GetCurrencyRates_WhenResponseContentIsNull_ReturnsApiError()
+    public async Task GetCurrencyExchangeRate_ResponseContentIsNull_ReturnsApiError()
     {
         const string currencyCode = "USD";
         LocalDate effectiveDate = new(2024, 1, 21);
 
         _httpMessageHandlerMock
-            .SetupRequest(HttpClientBaseAddress + GetRatesEndpointUrl(currencyCode, effectiveDate))
+            .SetupRequest(HttpMethod.Get, string.Concat(HttpClientBaseAddress, GetRatesEndpointUrl(currencyCode, effectiveDate)))
             .ReturnsJsonResponse<CurrencyRateApiResponse>(null);
 
-        Result<NbpApiClientCurrencyRateDto> result = await _nbpApiClient.GetCurrencyRates(currencyCode, effectiveDate);
+        Result<NbpApiClientExchangeCurrencyRateDto> result = await _nbpApiClient.GetCurrencyExchangeRate(currencyCode, effectiveDate);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo("Could not parse NBP payload."));
     }
 
     [Test]
-    public async Task GetCurrencyRates_WhenResponseHasInvalidNumberOfRates_ReturnsApiError()
+    public async Task GetCurrencyExchangeRate_ResponseHasInvalidNumberOfRates_ReturnsApiError()
     {
         const string currencyCode = "USD";
         const decimal bid = 3.5m;
         const decimal ask = 3.7m;
         LocalDate effectiveDate = new(2024, 1, 21);
-
+        
         CurrencyRateApiResponse responseContent = new(
             "C",
             "Currency",
@@ -109,18 +110,18 @@ public class NbpApiClientTests
                 new("2", effectiveDate.PlusDays(1), bid, ask)
             });
 
-    _httpMessageHandlerMock
-            .SetupRequest(HttpClientBaseAddress + GetRatesEndpointUrl(currencyCode, effectiveDate))
-            .ReturnsJsonResponse(responseContent);
+        _httpMessageHandlerMock
+            .SetupRequest(HttpMethod.Get, string.Concat(HttpClientBaseAddress, GetRatesEndpointUrl(currencyCode, effectiveDate)))
+            .ReturnsJsonResponse(responseContent, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
 
-        Result<NbpApiClientCurrencyRateDto> result = await _nbpApiClient.GetCurrencyRates(currencyCode, effectiveDate);
+        Result<NbpApiClientExchangeCurrencyRateDto> result = await _nbpApiClient.GetCurrencyExchangeRate(currencyCode, effectiveDate);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo("Invalid number of rates in NBP payload."));
     }
     
     [Test]
-    public async Task GetCurrencyRates_WhenResponseIsSuccessful_ReturnsCurrencyRate()
+    public async Task GetCurrencyExchangeRate_ResponseIsSuccessful_ReturnsCurrencyRate()
     {
         const string currencyCode = "USD";
         const decimal bid = 3.5m;
@@ -137,10 +138,10 @@ public class NbpApiClientTests
             });
 
         _httpMessageHandlerMock
-            .SetupRequest(HttpClientBaseAddress + GetRatesEndpointUrl(currencyCode, effectiveDate))
-            .ReturnsResponse(responseContent);
+            .SetupRequest(HttpMethod.Get, string.Concat(HttpClientBaseAddress, GetRatesEndpointUrl(currencyCode, effectiveDate)))
+            .ReturnsJsonResponse(responseContent, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
 
-        Result<NbpApiClientCurrencyRateDto> result = await _nbpApiClient.GetCurrencyRates(currencyCode, effectiveDate);
+        Result<NbpApiClientExchangeCurrencyRateDto> result = await _nbpApiClient.GetCurrencyExchangeRate(currencyCode, effectiveDate);
 
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.Code, Is.EqualTo(currencyCode));

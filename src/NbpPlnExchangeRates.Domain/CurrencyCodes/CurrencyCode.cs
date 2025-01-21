@@ -1,7 +1,7 @@
 using NbpPlnExchangeRates.Domain.Common;
 using NbpPlnExchangeRates.Domain.Common.Errors;
 
-namespace NbpPlnExchangeRates.Domain.IsoCodes;
+namespace NbpPlnExchangeRates.Domain.CurrencyCodes;
 
 public class CurrencyCode
 {

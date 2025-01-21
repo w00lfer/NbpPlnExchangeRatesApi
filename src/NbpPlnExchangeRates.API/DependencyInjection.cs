@@ -12,11 +12,20 @@ public static class DependencyInjection
 {
     public static void AddApiDI(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        services.AddControllers()
+        services.AddResponseCaching();
+        
+        services
+            .AddControllers(options =>
+            {
+                options.CacheProfiles.Add("Default",
+                    new CacheProfile()
+                    {
+                        Duration = 30
+                    });
+            })
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
         
         AddFluentValidation(services);

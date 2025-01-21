@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using NbpPlnExchangeRates.Domain.CurrencyCodes;
 using NbpPlnExchangeRates.Domain.ExchangeRates;
-using NbpPlnExchangeRates.Domain.IsoCodes;
 
 namespace NbpPlnExchangeRates.Infrastructure.ApplicationDbContexts;
 

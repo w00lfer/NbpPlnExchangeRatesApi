@@ -32,8 +32,9 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseResponseCaching();
+        
         app.UseAuthorization();
-
 
         app.MapControllers();
 

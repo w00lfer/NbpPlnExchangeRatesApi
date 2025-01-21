@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NbpPlnExchangeRates.Domain.Common;
-using NbpPlnExchangeRates.Domain.IsoCodes;
+using NbpPlnExchangeRates.Domain.CurrencyCodes;
 
 namespace NbpPlnExchangeRates.Infrastructure.Seeds;
 
