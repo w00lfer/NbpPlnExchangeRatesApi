@@ -9,12 +9,12 @@ public class GetExchangeRateQueryValidator : AbstractValidator<GetExchangeRateQu
     public GetExchangeRateQueryValidator(IClock clock)
     {
         RuleFor(x => x.CurrencyCode)
-            .NotEmpty()
-            .Length(3);
+            .NotEmpty().WithMessage("Must not be empty.")
+            .Length(3).WithMessage("Must be 3 characters.");
 
         RuleFor(x => x.EffectiveDate)
             .NotEmpty()
             .Must(x => x <= clock.InTzdbSystemDefaultZone().GetCurrentDate())
-            .WithMessage("Effective date must be in the past or today");
+            .WithMessage("Effective date must be in the past or today.");
     }
 }

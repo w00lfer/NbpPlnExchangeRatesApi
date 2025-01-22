@@ -15,6 +15,7 @@ public class ExchangeRate
     {
         Id = Guid.CreateVersion7();
         CurrencyCodeId = currencyCode.Id;
+        CurrencyCode = currencyCode;
         BuyingRate = buyingRate;
         SellingRate = sellingRate;
         EffectiveDate = effectiveDate;

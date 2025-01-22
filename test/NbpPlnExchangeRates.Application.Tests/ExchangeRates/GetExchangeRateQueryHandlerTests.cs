@@ -1,7 +1,9 @@
 using Moq;
 using NbpPlnExchangeRates.Application.ApiClients;
+using NbpPlnExchangeRates.Application.Common.Errors;
 using NbpPlnExchangeRates.Application.ExchangeRates.GetExchangeRate;
 using NbpPlnExchangeRates.Domain.Common;
+using NbpPlnExchangeRates.Domain.Common.Errors;
 using NbpPlnExchangeRates.Domain.CurrencyCodes;
 using NbpPlnExchangeRates.Domain.ExchangeRates;
 using NodaTime;
@@ -33,35 +35,36 @@ public class GetExchangeRateQueryHandlerTests
     {
         const string currencyCode = "QQQ";
         LocalDate effectiveDate = new LocalDate(2025, 01, 20);
+        CancellationToken cancellationToken = CancellationToken.None;
         GetExchangeRateQuery query = new(currencyCode, effectiveDate);
 
-
         _currencyCodeRepositoryMock
-            .Setup(repo => repo.GetByCodeAsync(currencyCode, CancellationToken.None))
+            .Setup(repo => repo.GetByCodeAsync(currencyCode, cancellationToken))
             .ReturnsAsync((CurrencyCode)null);
         
-        Result<ExchangeRateDto> result = await _handler.Handle(query, CancellationToken.None);
+        Result<ExchangeRateDto> result = await _handler.Handle(query, cancellationToken);
 
         Assert.That(result.IsFailure);
         Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo($"Currency code is invalid for CurrencyCode={currencyCode}."));
         
-        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, CancellationToken.None), Times.Once);
+        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, cancellationToken), Times.Once);
         
         VerifyNoOtherCalls();
     }
     
     [Test]
-    public async Task Handle_DateFallsOnWeekendAndExchangeRateExists_ReturnsMappedExchangeRate()
+    public async Task Handle_DateFallsOnWeekendAndExchangeRateExists_ReturnsMappedExchangeRateWithDifferentEffectiveDateThanTheOneFromRequest()
     {
         const string currencyCode = "USD";
         LocalDate effectiveDate = new LocalDate(2025, 01, 19);
+        CancellationToken cancellationToken = CancellationToken.None;
         GetExchangeRateQuery query = new(currencyCode, effectiveDate);
 
 
         Guid currencyCodeId = Guid.CreateVersion7();
         CurrencyCode currencyCodeEntity = Mock.Of<CurrencyCode>(x => x.Id == currencyCodeId && x.IsoCode == currencyCode);
         _currencyCodeRepositoryMock
-            .Setup(repo => repo.GetByCodeAsync(currencyCode, CancellationToken.None))
+            .Setup(repo => repo.GetByCodeAsync(currencyCode, cancellationToken))
             .ReturnsAsync(currencyCodeEntity);
 
         const decimal buyingRate = 3.5m;
@@ -72,20 +75,251 @@ public class GetExchangeRateQueryHandlerTests
                                                                && x.BuyingRate == buyingRate
                                                                && x.SellingRate == sellingRate);
         _exchangeRateRepositoryMock
-            .Setup(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, CancellationToken.None))
+            .Setup(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, cancellationToken))
             .ReturnsAsync(exchangeRate);
         
-        Result<ExchangeRateDto> result = await _handler.Handle(query, CancellationToken.None);
+        Result<ExchangeRateDto> result = await _handler.Handle(query, cancellationToken);
 
         Assert.That(result.IsSuccess);
         Assert.That(result.Value, Is.EqualTo(new ExchangeRateDto(currencyCode, buyingRate, sellingRate, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend)));
         
-        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, CancellationToken.None), Times.Once);
-        _exchangeRateRepositoryMock.Verify(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, CancellationToken.None), Times.Once);
+        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, cancellationToken), Times.Once);
         
         VerifyNoOtherCalls();
     }
     
+        
+    [Test]
+    public async Task Handle_DateFallsOnWorkdayAndExchangeRateExists_ReturnsMappedExchangeRate()
+    {
+        const string currencyCode = "USD";
+        LocalDate effectiveDate = new LocalDate(2025, 01, 20);
+        CancellationToken cancellationToken = CancellationToken.None;
+        GetExchangeRateQuery query = new(currencyCode, effectiveDate);
+
+
+        Guid currencyCodeId = Guid.CreateVersion7();
+        CurrencyCode currencyCodeEntity = Mock.Of<CurrencyCode>(x => x.Id == currencyCodeId && x.IsoCode == currencyCode);
+        _currencyCodeRepositoryMock
+            .Setup(repo => repo.GetByCodeAsync(currencyCode, cancellationToken))
+            .ReturnsAsync(currencyCodeEntity);
+
+        const decimal buyingRate = 3.5m;
+        const decimal sellingRate = 3.6m;
+        ExchangeRate exchangeRate = Mock.Of<ExchangeRate>(x => x.CurrencyCode == currencyCodeEntity
+                                                               && x.EffectiveDate == effectiveDate
+                                                               && x.BuyingRate == buyingRate
+                                                               && x.SellingRate == sellingRate);
+        _exchangeRateRepositoryMock
+            .Setup(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken))
+            .ReturnsAsync(exchangeRate);
+        
+        Result<ExchangeRateDto> result = await _handler.Handle(query, cancellationToken);
+
+        Assert.That(result.IsSuccess);
+        Assert.That(result.Value, Is.EqualTo(new ExchangeRateDto(currencyCode, buyingRate, sellingRate, effectiveDate)));
+        
+        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken), Times.Once);
+        
+        VerifyNoOtherCalls();
+    }
+    
+    [Test]
+    public async Task Handle_DateFallsOnWorkdayAndExchangeRateDoesNotExistAndNbpApiClientReturnsError_ReturnsErrorFromApiClient()
+    {
+        const string currencyCode = "USD";
+        LocalDate effectiveDate = new LocalDate(2025, 01, 20);
+        CancellationToken cancellationToken = CancellationToken.None;
+        GetExchangeRateQuery query = new(currencyCode, effectiveDate);
+
+        
+        CurrencyCode currencyCodeEntity = Mock.Of<CurrencyCode>(x => x.IsoCode == currencyCode);
+        _currencyCodeRepositoryMock
+            .Setup(repo => repo.GetByCodeAsync(currencyCode, cancellationToken))
+            .ReturnsAsync(currencyCodeEntity);
+        
+        _exchangeRateRepositoryMock
+            .Setup(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken))
+            .ReturnsAsync((ExchangeRate)null);
+
+        Error error = new ApplicationError("error");
+        _nbpApiClientMock
+            .Setup(x => x.GetCurrencyExchangeRate(currencyCode, effectiveDate, cancellationToken))
+            .ReturnsAsync(error);
+        
+        Result<ExchangeRateDto> result = await _handler.Handle(query, cancellationToken);
+
+        Assert.That(result.IsFailure);
+        Assert.That(result.Errors.Single(), Is.EqualTo(error));
+        
+        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken), Times.Once);
+        _nbpApiClientMock.Verify(x => x.GetCurrencyExchangeRate(currencyCode, effectiveDate, cancellationToken), Times.Once);
+        
+        VerifyNoOtherCalls();
+    }
+    
+    [Test]
+    public async Task Handle_DateFallsOnWorkdayAndExchangeRateDoesNotExistAndExchangeRateCreateReturnsErrorBecauseBuyingIsNegative_ReturnsExchangeRateCreateError()
+    {
+        const string currencyCode = "USD";
+        LocalDate effectiveDate = new LocalDate(2025, 01, 20);
+        CancellationToken cancellationToken = CancellationToken.None;
+        GetExchangeRateQuery query = new(currencyCode, effectiveDate);
+
+        
+        CurrencyCode currencyCodeEntity = Mock.Of<CurrencyCode>(x => x.IsoCode == currencyCode);
+        _currencyCodeRepositoryMock
+            .Setup(repo => repo.GetByCodeAsync(currencyCode, cancellationToken))
+            .ReturnsAsync(currencyCodeEntity);
+        
+        _exchangeRateRepositoryMock
+            .Setup(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken))
+            .ReturnsAsync((ExchangeRate)null);
+        
+        const decimal buyingRate = -3.5m;
+        const decimal sellingRate = 3.6m;
+        NbpApiClientExchangeCurrencyRateDto nbpApiClientExchangeCurrencyRateDto = new(currencyCode, effectiveDate, buyingRate, sellingRate);
+        _nbpApiClientMock
+            .Setup(x => x.GetCurrencyExchangeRate(currencyCode, effectiveDate, cancellationToken))
+            .ReturnsAsync(Result.Success(nbpApiClientExchangeCurrencyRateDto));
+        
+        Result<ExchangeRateDto> result = await _handler.Handle(query, cancellationToken);
+
+        Assert.That(result.IsFailure);
+        Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo("Rate must be greater or equal to 0."));
+        
+        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken), Times.Once);
+        _nbpApiClientMock.Verify(x => x.GetCurrencyExchangeRate(currencyCode, effectiveDate, cancellationToken), Times.Once);
+        
+        VerifyNoOtherCalls();
+    }
+    
+    [Test]
+    public async Task Handle_DateFallsOnWorkdayAndExchangeRateDoesNotExistAndExchangeRateCreateReturnsErrorBecauseSellingIsNegative_ReturnsExchangeRateCreateError()
+    {
+        const string currencyCode = "USD";
+        LocalDate effectiveDate = new LocalDate(2025, 01, 20);
+        CancellationToken cancellationToken = CancellationToken.None;
+        GetExchangeRateQuery query = new(currencyCode, effectiveDate);
+
+        
+        CurrencyCode currencyCodeEntity = Mock.Of<CurrencyCode>(x => x.IsoCode == currencyCode);
+        _currencyCodeRepositoryMock
+            .Setup(repo => repo.GetByCodeAsync(currencyCode, cancellationToken))
+            .ReturnsAsync(currencyCodeEntity);
+        
+        _exchangeRateRepositoryMock
+            .Setup(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken))
+            .ReturnsAsync((ExchangeRate)null);
+        
+        const decimal buyingRate = 3.5m;
+        const decimal sellingRate = -3.6m;
+        NbpApiClientExchangeCurrencyRateDto nbpApiClientExchangeCurrencyRateDto = new(currencyCode, effectiveDate, buyingRate, sellingRate);
+        _nbpApiClientMock
+            .Setup(x => x.GetCurrencyExchangeRate(currencyCode, effectiveDate, cancellationToken))
+            .ReturnsAsync(Result.Success(nbpApiClientExchangeCurrencyRateDto));
+        
+        Result<ExchangeRateDto> result = await _handler.Handle(query, cancellationToken);
+
+        Assert.That(result.IsFailure);
+        Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo("Rate must be greater or equal to 0."));
+        
+        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken), Times.Once);
+        _nbpApiClientMock.Verify(x => x.GetCurrencyExchangeRate(currencyCode, effectiveDate, cancellationToken), Times.Once);
+        
+        VerifyNoOtherCalls();
+    }
+    
+    [Test]
+    public async Task Handle_DateFallsOnWorkdayAndExchangeRateDoesNotExistAndExchangeRateCreateIsOk_AddNewExchangeRateToRepoAndReturnsMappedExchangeRate()
+    {
+        const string currencyCode = "USD";
+        LocalDate effectiveDate = new LocalDate(2025, 01, 20);
+        CancellationToken cancellationToken = CancellationToken.None;
+        GetExchangeRateQuery query = new(currencyCode, effectiveDate);
+
+        
+        CurrencyCode currencyCodeEntity = Mock.Of<CurrencyCode>(x => x.IsoCode == currencyCode);
+        _currencyCodeRepositoryMock
+            .Setup(repo => repo.GetByCodeAsync(currencyCode, cancellationToken))
+            .ReturnsAsync(currencyCodeEntity);
+        
+        _exchangeRateRepositoryMock
+            .Setup(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken))
+            .ReturnsAsync((ExchangeRate)null);
+        
+        const decimal buyingRate = 3.5m;
+        const decimal sellingRate = 3.6m;
+        NbpApiClientExchangeCurrencyRateDto nbpApiClientExchangeCurrencyRateDto = new(currencyCode, effectiveDate, buyingRate, sellingRate);
+        _nbpApiClientMock
+            .Setup(x => x.GetCurrencyExchangeRate(currencyCode, effectiveDate, cancellationToken))
+            .ReturnsAsync(Result.Success(nbpApiClientExchangeCurrencyRateDto));
+        
+        Result<ExchangeRateDto> result = await _handler.Handle(query, cancellationToken);
+
+        Assert.That(result.IsSuccess);
+        
+        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, effectiveDate, cancellationToken), Times.Once);
+        _nbpApiClientMock.Verify(x => x.GetCurrencyExchangeRate(currencyCode, effectiveDate, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.AddAsync(
+            It.Is<ExchangeRate>(y => y.CurrencyCode == currencyCodeEntity 
+                                     && y.EffectiveDate == effectiveDate 
+                                     && y.BuyingRate == buyingRate 
+                                     && y.SellingRate == sellingRate),
+            cancellationToken), Times.Once);
+        
+        VerifyNoOtherCalls();
+    }
+    
+        
+    [Test]
+    public async Task Handle_DateFallsOnWeekendAndExchangeRateDoesNotExistAndExchangeRateCreateIsOk_AddNewExchangeRateToRepoAndReturnsMappedExchangeRateWithDifferentEffectiveDateThanTheOneFromRequest()
+    {
+        const string currencyCode = "USD";
+        LocalDate effectiveDate = new LocalDate(2025, 01, 19);
+        CancellationToken cancellationToken = CancellationToken.None;
+        GetExchangeRateQuery query = new(currencyCode, effectiveDate);
+
+        
+        CurrencyCode currencyCodeEntity = Mock.Of<CurrencyCode>(x => x.IsoCode == currencyCode);
+        _currencyCodeRepositoryMock
+            .Setup(repo => repo.GetByCodeAsync(currencyCode, cancellationToken))
+            .ReturnsAsync(currencyCodeEntity);
+        
+        LocalDate lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend = new LocalDate(2025, 01, 17);
+        _exchangeRateRepositoryMock
+            .Setup(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, cancellationToken))
+            .ReturnsAsync((ExchangeRate)null);
+        
+        const decimal buyingRate = 3.5m;
+        const decimal sellingRate = 3.6m;
+        NbpApiClientExchangeCurrencyRateDto nbpApiClientExchangeCurrencyRateDto = new(currencyCode, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, buyingRate, sellingRate);
+        _nbpApiClientMock
+            .Setup(x => x.GetCurrencyExchangeRate(currencyCode, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, cancellationToken))
+            .ReturnsAsync(Result.Success(nbpApiClientExchangeCurrencyRateDto));
+        
+        Result<ExchangeRateDto> result = await _handler.Handle(query, cancellationToken);
+
+        Assert.That(result.IsSuccess);
+        
+        _currencyCodeRepositoryMock.Verify(repo => repo.GetByCodeAsync(currencyCode, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.GetByCurrencyIdAndEffectiveDateAsync(currencyCodeEntity.Id, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, cancellationToken), Times.Once);
+        _nbpApiClientMock.Verify(x => x.GetCurrencyExchangeRate(currencyCode, lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend, cancellationToken), Times.Once);
+        _exchangeRateRepositoryMock.Verify(x => x.AddAsync(
+            It.Is<ExchangeRate>(y => y.CurrencyCode == currencyCodeEntity 
+                                     && y.EffectiveDate == lastWorkingDayBeforeEffectiveDateWhichFallsOnWeekend 
+                                     && y.BuyingRate == buyingRate 
+                                     && y.SellingRate == sellingRate),
+            cancellationToken), Times.Once);
+        
+        VerifyNoOtherCalls();
+    }
 
     private void VerifyNoOtherCalls()
     {
