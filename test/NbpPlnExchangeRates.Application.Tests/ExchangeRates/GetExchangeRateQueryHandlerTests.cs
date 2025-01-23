@@ -412,8 +412,9 @@ public class GetExchangeRateQueryHandlerTests
             yield return new(new LocalDate(2025, 8, 15), new LocalDate(2025, 8, 14));
             yield return new(new LocalDate(2025, 11, 1), new LocalDate(2025, 10, 31));
             yield return new(new LocalDate(2025, 11, 11), new LocalDate(2025, 11, 10));
-            yield return new(new LocalDate(2025, 12, 25), new LocalDate(2025, 12, 24));
-            yield return new(new LocalDate(2025, 12, 26), new LocalDate(2025, 12, 24));
+            yield return new(new LocalDate(2025, 12, 24), new LocalDate(2025, 12, 23));
+            yield return new(new LocalDate(2025, 12, 25), new LocalDate(2025, 12, 23));
+            yield return new(new LocalDate(2025, 12, 26), new LocalDate(2025, 12, 23));
         }
     }
     

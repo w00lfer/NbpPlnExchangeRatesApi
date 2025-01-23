@@ -5,6 +5,7 @@ using NbpPlnExchangeRates.Domain.Common.Errors;
 using NbpPlnExchangeRates.Domain.CurrencyCodes;
 using NbpPlnExchangeRates.Domain.ExchangeRates;
 using NodaTime;
+using PublicHoliday;
 
 namespace NbpPlnExchangeRates.Application.ExchangeRates.GetExchangeRate;
 
@@ -15,22 +16,10 @@ public record GetExchangeRateQuery(
 
 public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery, Result<ExchangeRateDto>>
 {
-    private static readonly List<LocalDate> FixedPublicHolidays = new() 
-    {
-        new LocalDate(1, 1, 1),
-        new LocalDate(1, 1, 6),
-        new LocalDate(1, 5, 1),
-        new LocalDate(1, 5, 3),
-        new LocalDate(1, 8, 15),
-        new LocalDate(1, 11, 1),
-        new LocalDate(1, 11, 11),
-        new LocalDate(1, 12, 25),
-        new LocalDate(1, 12, 26)
-    };
-    
     private readonly ICurrencyCodeRepository _currencyCodeRepository;
     private readonly IExchangeRateRepository _exchangeRateRepository;
     private readonly INbpApiClient _nbpApiClient;
+    private readonly PolandPublicHoliday _polandPublicHoliday = new();
 
     public GetExchangeRateQueryHandler(
         ICurrencyCodeRepository currencyCodeRepository,
@@ -63,7 +52,7 @@ public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery,
         return await GetExchangeRateFromApiAndPersistItAsync(currencyCode, sanitisedEffectiveDate, cancellationToken);
     }
 
-    private static LocalDate GetLastBusinessDay(LocalDate date)
+    private LocalDate GetLastBusinessDay(LocalDate date)
     {
         while (DoesDateFallsOnAWeekend(date) || DoesDateFallsOnAPublicHoliday(date))
         {
@@ -72,15 +61,14 @@ public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery,
         return date;
     }
     
-    private static bool DoesDateFallsOnAWeekend(LocalDate date)
+    private bool DoesDateFallsOnAWeekend(LocalDate date)
     {
         var dayOfWeek = date.DayOfWeek;
         
         return dayOfWeek is IsoDayOfWeek.Saturday or IsoDayOfWeek.Sunday;
     }
     
-    private static bool DoesDateFallsOnAPublicHoliday(LocalDate date) =>
-        FixedPublicHolidays.Any(holiday => holiday.Month == date.Month && holiday.Day == date.Day);
+    private bool DoesDateFallsOnAPublicHoliday(LocalDate date) => _polandPublicHoliday.IsPublicHoliday(date.ToDateTimeUnspecified());
 
     private static Result<ExchangeRateDto> MapExchangeRateToExchangeRateDto(ExchangeRate exchangeRate) =>
         Result.Success(new ExchangeRateDto(
