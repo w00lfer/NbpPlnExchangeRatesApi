@@ -16,7 +16,7 @@ internal class AppInitializer : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var dbContextTypes = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
+            .SelectMany(x => x.GetExportedTypes())
             .Where(x => typeof(DbContext).IsAssignableFrom(x) && !x.IsInterface && x != typeof(DbContext));
 
         using var scope = _serviceProvider.CreateScope();

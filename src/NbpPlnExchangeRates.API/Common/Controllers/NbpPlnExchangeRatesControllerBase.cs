@@ -10,16 +10,16 @@ namespace NbpPlnExchangeRates.Api.Common.Controllers;
 [Route("api")]
 public class NbpPlnExchangeRatesControllerBase : ControllerBase
 {
-    protected readonly IMediator Mediator;
+    private readonly IMediator _mediator;
 
     public NbpPlnExchangeRatesControllerBase(IMediator mediator)
     {
-        Mediator = mediator;
+        _mediator = mediator;
     }
 
     protected async Task<IActionResult> QueryAsync<T>(IRequest<Result<T>> request) where T: class
     {
-        Result<T> result = await Mediator.Send(request);
+        Result<T> result = await _mediator.Send(request);
         
         return result.IsSuccess
             ? Ok(result.Value)
