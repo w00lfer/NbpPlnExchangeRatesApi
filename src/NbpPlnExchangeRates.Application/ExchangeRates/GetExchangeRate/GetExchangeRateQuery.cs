@@ -15,6 +15,19 @@ public record GetExchangeRateQuery(
 
 public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery, Result<ExchangeRateDto>>
 {
+    private static readonly List<LocalDate> FixedPublicHolidays = new() 
+    {
+        new LocalDate(1, 1, 1),
+        new LocalDate(1, 1, 6),
+        new LocalDate(1, 5, 1),
+        new LocalDate(1, 5, 3),
+        new LocalDate(1, 8, 15),
+        new LocalDate(1, 11, 1),
+        new LocalDate(1, 11, 11),
+        new LocalDate(1, 12, 25),
+        new LocalDate(1, 12, 26)
+    };
+    
     private readonly ICurrencyCodeRepository _currencyCodeRepository;
     private readonly IExchangeRateRepository _exchangeRateRepository;
     private readonly INbpApiClient _nbpApiClient;
@@ -37,7 +50,7 @@ public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery,
             return Result.Failure<ExchangeRateDto>(new EntityNotFoundError($"Currency code is invalid for CurrencyCode={request.CurrencyCode}."));
         }
         
-        LocalDate sanitisedEffectiveDate = DoesDateFallsOnAWeekend(request.EffectiveDate) 
+        LocalDate sanitisedEffectiveDate = DoesDateFallsOnAWeekend(request.EffectiveDate) || DoesDateFallsOnAPublicHoliday(request.EffectiveDate)
             ? GetLastBusinessDay(request.EffectiveDate)
             : request.EffectiveDate;
         
@@ -52,7 +65,7 @@ public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery,
 
     private static LocalDate GetLastBusinessDay(LocalDate date)
     {
-        while (DoesDateFallsOnAWeekend(date))
+        while (DoesDateFallsOnAWeekend(date) || DoesDateFallsOnAPublicHoliday(date))
         {
             date = date.PlusDays(-1);
         }
@@ -66,6 +79,9 @@ public class GetExchangeRateQueryHandler : IRequestHandler<GetExchangeRateQuery,
         return dayOfWeek is IsoDayOfWeek.Saturday or IsoDayOfWeek.Sunday;
     }
     
+    private static bool DoesDateFallsOnAPublicHoliday(LocalDate date) =>
+        FixedPublicHolidays.Any(holiday => holiday.Month == date.Month && holiday.Day == date.Day);
+
     private static Result<ExchangeRateDto> MapExchangeRateToExchangeRateDto(ExchangeRate exchangeRate) =>
         Result.Success(new ExchangeRateDto(
             exchangeRate.CurrencyCode.IsoCode,
