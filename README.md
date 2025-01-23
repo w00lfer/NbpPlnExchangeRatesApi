@@ -21,7 +21,7 @@ This project is built using the following technologies and frameworks:
 - **[Scalar]** - For creating styled and interactive API documentation
 - **[TestContainers]** - Simplifies and speeds up integration testing
 - **[Clean Architecture]** - Ensures the project is well-structured, facilitating future feature implementation
-- **Result Pattern** - While not a design pattern, this helps developers handle potential errors explicitly in methods
+- **[Result Pattern]** - While not a design pattern, this helps developers handle potential errors explicitly in methods
 
 ---
 
