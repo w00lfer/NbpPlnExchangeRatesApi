@@ -16,6 +16,6 @@ public class ExchangeRateController: NbpPlnExchangeRatesControllerBase
 
     [HttpGet("{currencyCode}/{effectiveDate}")]
     [ResponseCache(CacheProfileName = "Default")]
-    public Task<IActionResult> GetExchangeRates([FromRoute] string currencyCode, [FromRoute] LocalDate effectiveDate) => 
-        QueryAsync(new GetExchangeRateQuery(currencyCode, effectiveDate));
+    public Task<IActionResult> GetExchangeRates([FromRoute] string currencyCode, [FromRoute] LocalDate effectiveDate, CancellationToken cancelationToken) => 
+        QueryAsync(new GetExchangeRateQuery(currencyCode, effectiveDate), cancelationToken);
 }

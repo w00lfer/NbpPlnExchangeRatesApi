@@ -1,3 +1,4 @@
+using NbpPlnExchangeRates.Api.Common.Middlewares;
 using NbpPlnExchangeRates.Application;
 using NbpPlnExchangeRates.Domain;
 using NbpPlnExchangeRates.Infrastructure;
@@ -36,6 +37,8 @@ public class Program
         
         app.UseAuthorization();
 
+        app.UseMiddleware<TaskCanceledAndOperationCanceledExceptionHandlingMiddleware>();
+        
         app.MapControllers();
 
         app.Run();

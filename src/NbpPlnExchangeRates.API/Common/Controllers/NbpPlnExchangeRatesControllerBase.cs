@@ -17,9 +17,9 @@ public class NbpPlnExchangeRatesControllerBase : ControllerBase
         _mediator = mediator;
     }
 
-    protected async Task<IActionResult> QueryAsync<T>(IRequest<Result<T>> request) where T: class
+    protected async Task<IActionResult> QueryAsync<T>(IRequest<Result<T>> request, CancellationToken cancellationToken) where T: class
     {
-        Result<T> result = await _mediator.Send(request);
+        Result<T> result = await _mediator.Send(request, cancellationToken);
         
         return result.IsSuccess
             ? Ok(result.Value)
